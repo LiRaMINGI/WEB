@@ -1,5 +1,5 @@
 <?php
-$my_Num = 12345;
+$my_Num = 10;
 $answer = $my_Num;
 
 $answer += 2;
