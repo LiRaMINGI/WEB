@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="text" name="status" required><br>
 
     <label>Зарплата:</label>
-    <input type="number" name="salary " required><br>
+    <input type="number" name="salary" required><br>
 
     <button type="submit">Сохранить</button>
 </form>
