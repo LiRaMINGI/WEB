@@ -1,5 +1,4 @@
 <?php
-
 $categories = ['Auto', 'Moto', 'Bikes'];
 foreach ($categories as $category) {
     if (!file_exists("categories/$category")) {
