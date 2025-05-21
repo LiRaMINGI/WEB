@@ -1,53 +1,33 @@
 <?php
-function request($url, $method = 'GET', $data = null) {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
+function makeHttpRequest($url, $method = 'GET', $requestData = null) {
+    $curlHandle = curl_init($url);
+    curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false); // Отключаем проверку SSL для тестов
+    
     if ($method === 'POST') {
-        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($curlHandle, CURLOPT_POST, true);
     } elseif (in_array($method, ['PUT', 'DELETE'])) {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
     }
 
-    if ($data !== null) {
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    if ($requestData !== null) {
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($curlHandle, CURLOPT_POSTFIELDS, json_encode($requestData));
     }
 
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $response = curl_exec($curlHandle);
     
     if ($response === false) {
-        echo "cURL Error: " . curl_error($ch);
-        return null;
+        $response = 'Curl error: ' . curl_error($curlHandle);
     }
-
-    curl_close($ch);
-    return json_decode($response, true); // Возвращает массив
+    
+    curl_close($curlHandle);
+    return $response;
 }
 
-// Примеры запросов
-echo "GET:\n";
-print_r(request('https://jsonplaceholder.typicode.com/posts/1'));
-
-echo "\nPOST:\n";
-print_r(request('https://jsonplaceholder.typicode.com/posts', 'POST', [
-    'title' => 'Welcome!',
-    'body' => 'Nice to see you',
-    'userId' => 1
-]));
-
-echo "\nPUT:\n";
-print_r(request('https://jsonplaceholder.typicode.com/posts/1', 'PUT', [
-    'id' => 1,
-    'title' => 'New update',
-    'body' => 'It was edited',
-    'userId' => 1
-]));
-
-echo "\nDELETE:\n";
-print_r(request('https://jsonplaceholder.typicode.com/posts/1', 'DELETE'));
+// Тестовые запросы
+echo "GET:\n" . makeHttpRequest('https://jsonplaceholder.typicode.com/posts/1') . "\n\n";
+echo "POST:\n" . makeHttpRequest('https://jsonplaceholder.typicode.com/posts', 'POST', ['title' => 'BOB', 'body' => 'TEACHER', 'userId' => 1]) . "\n\n";
+echo "PUT:\n" . makeHttpRequest('https://jsonplaceholder.typicode.com/posts/1', 'PUT', ['id' => 1, 'title' => 'MARY', 'DRIVER' => '', 'userId' => 1]) . "\n\n";
+echo "DELETE:\n" . makeHttpRequest('https://jsonplaceholder.typicode.com/posts/1', 'DELETE') . "\n\n";
 ?>
