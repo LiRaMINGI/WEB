@@ -1,6 +1,6 @@
 <?php
 
-$str = 'fhs fbd bfd daec fdtf fxeb fbbf deae cdac';
+$str = 'fhs fbd bfd daec fdtf fxeb fbbf deae fdaf';
 
 preg_match_all('/f..f/', $str, $matches);
 

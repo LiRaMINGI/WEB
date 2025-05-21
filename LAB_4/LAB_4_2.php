@@ -1,6 +1,6 @@
 <?php
 
-$str = 'a1b4c6';
+$str = 'a1b8c6d3e5';
 $pattern = '/\d+/';
 function replaceWithFactorial($matches) {
     $number = (int)$matches[0];
