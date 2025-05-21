@@ -8,11 +8,14 @@ class ApiClient {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FAILONERROR => false,
         CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => false, // Отключаем проверку SSL для тестов
+        CURLOPT_SSL_VERIFYHOST => 0,    // Отключаем проверку SSL для тестов
     ];
 
     public function __construct(string $baseUrl, array $options = []) {
         $this->baseUrl = rtrim($baseUrl, '/');
         
+        // Обработка аутентификации
         if (isset($options['auth_basic'])) {
             $this->setBasicAuth($options['auth_basic']['username'], $options['auth_basic']['password']);
         }
@@ -21,8 +24,20 @@ class ApiClient {
             $this->setTokenAuth($options['auth_token']);
         }
         
-        $this->defaultHeaders['Content-Type'] = 'application/json';
-        $this->defaultHeaders['Accept'] = 'application/json';
+        // Настройка SSL (можно включить для production)
+        if (isset($options['verify_ssl']) && $options['verify_ssl'] === true) {
+            $this->curlOptions[CURLOPT_SSL_VERIFYPEER] = true;
+            $this->curlOptions[CURLOPT_SSL_VERIFYHOST] = 2;
+            if (isset($options['ssl_cert_path'])) {
+                $this->curlOptions[CURLOPT_CAINFO] = $options['ssl_cert_path'];
+            }
+        }
+        
+        // Установка заголовков по умолчанию
+        $this->defaultHeaders = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ];
     }
 
     public function setBasicAuth(string $username, string $password): void {
@@ -102,7 +117,7 @@ class ApiClient {
         curl_close($ch);
 
         if ($error) {
-            throw new ApiClientException("cURL error: {$error}");
+            throw new ApiClientException("cURL error [{$statusCode}]: {$error}");
         }
 
         $decodedResponse = json_decode($response, true) ?? $response;
@@ -110,7 +125,6 @@ class ApiClient {
         return [
             'status' => $statusCode,
             'data' => $decodedResponse,
-            'headers' => [], // Можно добавить извлечение заголовков ответа
         ];
     }
 }

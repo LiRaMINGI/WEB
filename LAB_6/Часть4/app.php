@@ -1,37 +1,35 @@
 <?php
 require_once 'ApiClient.php';
 
-//Basic Auth
-$basicAuthClient = new ApiClient('https://httpbin.org', [
-    'auth_basic' => [
-        'username' => 'user',
-        'password' => 'pass'
-    ]
-]);
+try {
+    // Создаем клиент с Basic Auth (SSL проверка отключена для тестов)
+    $client = new ApiClient('https://httpbin.org', [
+        'auth_basic' => [
+            'username' => 'user',
+            'password' => 'pass'
+        ],
+        'verify_ssl' => false // Только для тестирования!
+    ]);
 
-echo "Testing Basic Auth GET:\n";
-$response = $basicAuthClient->get('/basic-auth/user/pass');
-print_r($response);
+    // Тестируем GET запрос с Basic Auth
+    echo "Testing Basic Auth GET:\n";
+    $response = $client->get('/basic-auth/user/pass');
+    print_r($response);
 
-echo "\nTesting POST with data:\n";
-$response = $basicAuthClient->post('/anything', [
-    'title' => 'Hello',
-    'body' => 'World'
-]);
-print_r($response);
+    // Тестируем POST запрос
+    echo "\nTesting POST with data:\n";
+    $response = $client->post('/anything', [
+        'title' => 'Hello',
+        'body' => 'World'
+    ]);
+    print_r($response);
 
-//Token Auth
-$tokenAuthClient = new ApiClient('https://api.example.com', [
-    'auth_token' => 'your-api-token-here'
-]);
+    // Тестируем GET с query параметрами
+    echo "\nTesting GET with query params:\n";
+    $response = $client->get('/get', ['param1' => 'value1', 'param2' => 'value2']);
+    print_r($response);
 
-//Дополнительные параметры
-$customClient = new ApiClient('https://api.example.com');
-$customClient->setTokenAuth('custom-token');
-$customClient->setHeader('X-Custom-Header', 'value');
-$customClient->setCurlOption(CURLOPT_TIMEOUT, 60);
-
-//query параметры
-$response = $customClient->get('/search', ['q' => 'php', 'page' => 1]);
-print_r($response);
+} catch (ApiClientException $e) {
+    echo "API Error: " . $e->getMessage();
+}
 ?>
